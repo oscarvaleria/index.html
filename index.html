@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload file</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 3rem auto;
+      max-width: 800px;
+      padding: 2rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 0.5rem;
+      margin-top: 2rem;
+    }
+
+    .section {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    label, select, input[type="file"], button {
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    button {
+      background-color: #007acc;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Upload file</h2>
+
+  <div class="section">
+    <h3>XML or MSJ File Upload</h3>
+    <form id="upload-form">
+      <label for="xmlFile">Select XML or MSJ file(s):</label>
+      <input type="file" id="xmlFile" name="file" accept=".xml,.msj" required multiple>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    document.getElementById("upload-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const files = document.getElementById("xmlFile").files;
+      const status = document.getElementById("status");
+
+      if (!files.length) {
+        status.textContent = "No file selected.";
+        return;
+      }
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const response = await fetch("https://valeriahr.app.n8n.cloud/webhook/2074381a-4b52-4f25-bedb-3d04ea9bad45", {
+            method: "POST",
+            body: formData
+          });
+
+          if (response.ok) {
+            status.textContent = `File "${file.name}" uploaded successfully.`;
+          } else {
+            status.textContent = `Error uploading "${file.name}": ${response.statusText}`;
+          }
+        } catch (error) {
+          status.textContent = `Connection error: ${error.message}`;
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
